@@ -1,11 +1,11 @@
+
 const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
 const config = require('./config.json');
 const { prefix, chatname } = require('./config.json');
 const comando = require("./comandos.js");
 const client = new Discord.Client();
-const path = require("path")
-
+const path = require("path");
 
 client.on("ready", () => {
     console.log(`Bot iniciado, com ${client.users.size} usuários, em ${client.channels.size} canais, em ${client.guilds.size} servidores.`);
@@ -45,11 +45,11 @@ client.on("ready", () => {
             return;
         }       
 
-        voice.channel.join()
+        voice.channel.join();
 
         try {          
             const stream = ytdl(args[1], { filter: "audioonly" });
-
+            connection.play(stream, { volume: 1, seek: 0 });
         } catch (error) {
             console.log(error);  
         }
