@@ -8,7 +8,7 @@
         TOKEN
         ODY0ODM2OTkwNDgxMzM0Mjcy.YO7QNg.st65pDWbdJG7HAVTL29wSWckJwo
     */
-
+const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
 const config = require('./config.json');
 const { chatname } = require('./config.json');

@@ -1,3 +1,5 @@
+//Execução de comandos in-chat
+
 const { prefix, chatname } = require('./config.json');
 
 module.exports = (client, aliases, callback) => {
