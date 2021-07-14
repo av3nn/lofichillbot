@@ -11,7 +11,7 @@
 const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
 const config = require('./config.json');
-const { chatname } = require('./config.json');
+const { prefix, chatname } = require('./config.json');
 const comando = require("./comandos.js");
 const client = new Discord.Client();
 
@@ -20,22 +20,35 @@ client.on("ready", () => {
     console.log(`Bot iniciado, com ${client.users.size} usuários, em ${client.channels.size} canais, em ${client.guilds.size} servidores.`);
     
     client.user.setActivity(`Catching a Vibe 🎵`);  
+  
+    comando(client, 'comandos',  message => {   
+        message.channel.send
+        (`Comandos disponíveis:
+        • ${prefix}comandos (Mostra todos os comandos disponíveis)
+        • ${prefix}ping (Mostra o ping entre você e o bot)
+        • ${prefix}tocar <link do youtube>
+        • ${prefix}radiolofigirl <Toca a Rádio da lofigirl>
+        `
+        );
+    })
 
     comando(client, 'ping', async message => {   
         const m = await message.channel.send("Ping?");
         m.edit(`Pong! A Latência é de: ${m.createdTimestamp - message.createdTimestamp}ms.`);
     })
-    
-    comando(client, 'comandos',  message => {   
-        message.channel.send
-        ("Comandos disponíveis: \n" 
-        + "!comandos (Mostra todos os comandos disponíveis)\n"
-        + "!ping (Mostra o ping entre você e o bot)\n"
-        + "!tocar <> \n"
-        + "!ping \n"
 
-        );
+
+    comando(client, 'tocar', message => {   
+        var url = message.replace(/!tocar/gi, '');
+        url = url.trim();
+        try {
+            
+            const stream = ytdl(url, { filter: "audioonly" });
+        } catch (error) {
+          console.log(error);  
+        }
     })
+
 
 });
 client.on("guildCreate", guild => {
