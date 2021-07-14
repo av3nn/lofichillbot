@@ -39,13 +39,23 @@ client.on("ready", () => {
 
 
     comando(client, 'tocar', message => {   
-        var url = message.replace(/!tocar/gi, '');
-        url = url.trim();
-        try {
-            
-            const stream = ytdl(url, { filter: "audioonly" });
+        let args = message.split(" ");
+        //args[0] -> "!tocar"
+        //args[1] -> <url>
+        if (!args[1]){
+            message.channel.send("Me diga um link válido!");
+            return;
+        }
+        
+        if (!message.member.voiceChannel){
+            message.channel.send("Você precisa estar em um chat de voz!");
+            return;
+        }       
+        try {          
+            const stream = ytdl(args[1], { filter: "audioonly" });
+
         } catch (error) {
-          console.log(error);  
+            console.log(error);  
         }
     })
 
