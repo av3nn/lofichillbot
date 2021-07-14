@@ -4,13 +4,14 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "discord.js": "^12.5.3"
+    "discord.js": "^12.5.3",
+    "ytdl-core": "^4.8.3"
   },
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Av3nn",
   "license": "ISC"
 }
