@@ -1,13 +1,3 @@
-    /* 
-        APPLICATION ID
-        864836990481334272
-
-        PUBLIC KEY
-        60fcd5997fbbc720b96def0b94a2bf6b750a57a50a7e403519e5ffd398ad3485
-
-        TOKEN
-        ODY0ODM2OTkwNDgxMzM0Mjcy.YO7QNg.st65pDWbdJG7HAVTL29wSWckJwo
-    */
 const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
 const config = require('./config.json');
@@ -51,6 +41,7 @@ client.on("ready", () => {
             message.channel.send("Você precisa estar em um chat de voz!");
             return;
         }       
+
         try {          
             const stream = ytdl(args[1], { filter: "audioonly" });
 
