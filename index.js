@@ -4,6 +4,7 @@ const config = require('./config.json');
 const { prefix, chatname } = require('./config.json');
 const comando = require("./comandos.js");
 const client = new Discord.Client();
+const path = require("path")
 
 
 client.on("ready", () => {
@@ -29,18 +30,22 @@ client.on("ready", () => {
 
 
     comando(client, 'tocar', message => {   
-        let args = message.split(" ");
+        let args = message.content.split(" ");
         //args[0] -> "!tocar"
         //args[1] -> <url>
+        const { voice } = message.member;
+
         if (!args[1]){
             message.channel.send("Me diga um link válido!");
             return;
         }
         
-        if (!message.member.voiceChannel){
+        if (!voice.channelID){
             message.channel.send("Você precisa estar em um chat de voz!");
             return;
         }       
+
+        voice.channel.join()
 
         try {          
             const stream = ytdl(args[1], { filter: "audioonly" });
