@@ -119,24 +119,44 @@ client.on("ready", () => {
     })
 
     comando(client, 'lofigirl', message => {   
-        checkandplay(lofigirlurl, message);  
+        m = {
+            title: "lofi hip hop radio - beats to relax/study to",
+            url: lofigirlurl
+        }
+        checkandplay(m, message);  
     })
 
     comando(client, 'catchthevibe', message => {   
-        checkandplay(bestlofiever, message);
+        m = {
+            title: "Catching a Vibe / lofi hiphop mix",
+            url: bestlofiever
+        }
+        checkandplay(m, message);
         message.channel.send("Amo essa! ❤");    
     })
 
-    comando(client, 'summervibes', message => {   
-        checkandplay(summervibes, message);  
+    comando(client, 'summervibes', message => {  
+        m = {
+            title: "Summer Vibes / lofi hip hop mix",
+            url: summervibes
+        }        
+        checkandplay(m, message);  
     })
 
-    comando(client, 'oldsongs', message => {   
-        checkandplay(oldsongs, message);  
+    comando(client, 'oldsongs', message => { 
+        m = {
+            title: "old songs but it's lofi remix",
+            url: oldsongs
+        }  
+        checkandplay(m, message);  
     })   
 
-    comando(client, 'escape', message => {   
-        checkandplay(escape, message);  
+    comando(client, 'escape', message => {  
+        m = {
+            title: "Música ambiente para escapar da realidade - lista de reprodução de trabalho /",
+            url: escape
+        } 
+        checkandplay(m, message);  
     })  
 
     comando(client, 'pause', message => {   
