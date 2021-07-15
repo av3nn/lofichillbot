@@ -1,5 +1,7 @@
 require('events').EventEmitter.defaultMaxListeners = 15;
 
+
+require('dotenv').config();
 const ytsr = require("ytsr");
 const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
@@ -230,4 +232,4 @@ client.on("guildDelete", guild => {
     console.log(`O Bot foi removido do servidor: ${guild.name} (id: ${guild.id})`)
 }); 
 
-client.login(global.token);
+client.login(process.env.TOKEN);
