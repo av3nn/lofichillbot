@@ -5,7 +5,16 @@ const config = require('./config.json');
 const { prefix, chatname } = require('./config.json');
 const comando = require("./comandos.js");
 const client = new Discord.Client();
-const path = require("path");
+
+
+/* <-- <-- <-- <-- <-- URLS YOUTUBE LOFIS --> --> --> --> -->  */
+const lofigirlurl = 'https://www.youtube.com/watch?v=5qap5aO4i9A';
+const bestlofiever = 'https://www.youtube.com/watch?v=wx2SmvQ8dtM';
+const summervibes = 'https://www.youtube.com/watch?v=I3tgkBCZr2o';
+const oldsongs = 'https://www.youtube.com/watch?v=BrnDlRmW5hs';
+/////////////////////////////////////////////////////////////////////
+
+
 
 function play(url, connection) {
     playing = true;
@@ -14,17 +23,39 @@ function play(url, connection) {
   }
 
 client.on("ready", () => {
-    console.log(`Bot iniciado, com ${client.users.size} usuários, em ${client.channels.size} canais, em ${client.guilds.size} servidores.`);
-    
+    console.log(`Bot iniciado, com ${client.users.size} usuários, em ${client.channels.size} canais, em ${client.guilds.size} servidores.`);   
     client.user.setActivity(`Catching a Vibe 🎵`);  
   
+    
+
+    function checkandplay(url, message){
+        const { voice } = message.member;
+        
+        if (!url){
+            message.channel.send("Me diga um link válido!");
+            return;
+        }
+        
+        if (!voice.channelID){
+            message.channel.send("Você precisa estar em um chat de voz!");
+            return;
+        }   
+        
+        voice.channel.join().then((connection) => {
+            play(url, connection); 
+        });
+    }
+
     comando(client, 'comandos',  message => {   
         message.channel.send
         (`Comandos disponíveis:
         • ${prefix}comandos (Mostra todos os comandos disponíveis)
         • ${prefix}ping (Mostra o ping entre você e o bot)
-        • ${prefix}tocar <link do youtube>
-        • ${prefix}radiolofigirl <Toca a Rádio da lofigirl>
+        • ${prefix}tocaryt <link do youtube>
+        • ${prefix}lofigirl <Toca a Rádio da lofigirl>
+        • ${prefix}catchthevibe <Toca o melhor lofi de todos ❤>
+        • ${prefix}summervibes <Toca o lofi Summer Vibes>
+        • ${prefix}oldsongs <Toca músicas antigas, porém lofi>
         `
         );
     })
@@ -34,29 +65,31 @@ client.on("ready", () => {
         m.edit(`Pong! A Latência é de: ${m.createdTimestamp - message.createdTimestamp}ms.`);
     })
 
-
-    comando(client, 'tocar', message => {   
+    
+    comando(client, 'tocaryt', message => {   
         let args = message.content.split(" ");
-        //args[0] -> "!tocar"
+        //args[0] -> "!tocaryt"
         //args[1] -> <url>
-        const { voice } = message.member;
-
-        if (!args[1]){
-            message.channel.send("Me diga um link válido!");
-            return;
-        }
         
-        if (!voice.channelID){
-            message.channel.send("Você precisa estar em um chat de voz!");
-            return;
-        }       
-        args[1]
-        voice.channel.join().then((connection) => {
-            play(args[1], connection);   
-        });
-
+        checkandplay(args[1], message);
     })
 
+    comando(client, 'radiolofigirl', async message => {   
+        checkandplay(lofigirlurl, message);  
+    })
+
+    comando(client, 'catchthevibe', async message => {   
+        checkandplay(bestlofiever, message);
+        message.channel.send("Amo essa! ❤");    
+    })
+
+    comando(client, 'summervibes', async message => {   
+        checkandplay(summervibes, message);  
+    })
+
+    comando(client, 'oldsongs', async message => {   
+        checkandplay(oldsongs, message);  
+    })   
 
 });
 client.on("guildCreate", guild => {
