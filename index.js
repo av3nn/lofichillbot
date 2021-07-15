@@ -1,7 +1,6 @@
 require('events').EventEmitter.defaultMaxListeners = 15;
-
-
 require('dotenv').config();
+
 const ytsr = require("ytsr");
 const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
@@ -80,6 +79,7 @@ client.on("ready", () => {
         • ${botConfig.prefix}linkyt <link do youtube> (Toca qualquer link do YouTube)
         • ${botConfig.prefix}pause (Pausa a música que está tocando)
         • ${botConfig.prefix}resume (Continua a música de onde parou)
+        • ${botConfig.prefix}stop (Para completamente a reprodução da música)
         • ${botConfig.prefix}fila (Mostra as músicas que estão na fila de reprodução)
         • ${botConfig.prefix}next (Passa para a próxima música da fila de reprodução)
 
@@ -153,6 +153,14 @@ client.on("ready", () => {
             return; 
         } 
         dispatcher.resume(); 
+    })   
+
+    comando(client, 'stop', message => {  
+        if (!dispatcher) {
+            message.channel.send("Não estou tocando nenhuma música!");
+            return; 
+        } 
+        dispatcher.destroy(); 
     })   
 
 
