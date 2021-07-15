@@ -1,4 +1,6 @@
+require('events').EventEmitter.defaultMaxListeners = 15;
 
+const ytsr = require("ytsr");
 const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
 const config = require('./config.json');
@@ -15,19 +17,13 @@ const oldsongs = 'https://www.youtube.com/watch?v=BrnDlRmW5hs';
 const escape = 'https://www.youtube.com/watch?v=qt_urUz42vI';
 /////////////////////////////////////////////////////////////////////
 
-
-
-
+let fila
 
 client.on("ready", () => {
     console.log(`Bot iniciado, com ${client.users.size} usuários, em ${client.channels.size} canais, em ${client.guilds.size} servidores.`);   
     client.user.setActivity(`Catching a Vibe 🎵`);     
     let dispatcher;
 
-    dispatcher.on('finish', () => {
-        console.log('Terminou de Tocar!');
-        dispatcher = '';
-      });
 
     function checkandplay(url, message){
         const { voice } = message.member;
@@ -52,6 +48,12 @@ client.on("ready", () => {
         playing = true;
         const stream = ytdl(url, { filter: "audioonly" });
         dispatcher = connection.play(stream, { volume: 1, seek: 0 });
+
+        dispatcher.on('finish', () => {
+            console.log('Terminou de Tocar!');
+            dispatcher = '';
+          });
+  
       } 
 
     comando(client, 'comandos',  message => {   
@@ -61,16 +63,17 @@ client.on("ready", () => {
         Comandos Gerais:
         • ${prefix}comandos (Mostra todos os comandos disponíveis)
         • ${prefix}ping (Mostra o ping entre você e o bot)
-        • ${prefix}tocaryt <link do youtube> (Toca qualquer link do YouTube)
+        • ${prefix}play <nome da música> (Toca qualquer música do YouTube)
+        • ${prefix}linkyt <link do youtube> (Toca qualquer link do YouTube)
         • ${prefix}pause (Pausa a música que está tocando)
         • ${prefix}resume (Continua a música de onde parou)
 
         Lofies:
-        • ${prefix}lofigirl (Toca a Rádio da lofigirl) 📢 LIVE
+        • ${prefix}lofigirl (Toca a Rádio da lofigirl) LIVE 📢
         • ${prefix}catchthevibe (Toca o melhor lofi de todos ❤)
         • ${prefix}summervibes (Toca o lofi Summer Vibes)
         • ${prefix}oldsongs (Toca músicas antigas, porém lofi)
-        • ${prefix}escape (Toca música ambiente para sair da realidade) 📢 LIVE
+        • ${prefix}escape (Toca música ambiente para sair da realidade) LIVE 📢
         `
         );
     })
@@ -80,36 +83,46 @@ client.on("ready", () => {
         m.edit(`Pong! A Latência é de: ${m.createdTimestamp - message.createdTimestamp}ms.`);
     })
 
+    comando(client, 'play', async message => {   
+        const search = message.content.replace(/!play/gi, '').trim();
+        message.channel.send(`Pesquisando por: ${search}`);
+        const result = await ytsr(search, { limit: "1" });
+        const musica = result.items[0]; 
+        message.channel.send(`Tocando: ${musica.title}`);
+        checkandplay(musica.url, message);
+        
+    })
     
-    comando(client, 'tocaryt', message => {   
+
+    comando(client, 'linkyt', message => {   
         let args = message.content.split(" ");
-        //args[0] -> "!tocaryt"
+        //args[0] -> "!play"
         //args[1] -> <url>       
         checkandplay(args[1], message);
     })
 
-    comando(client, 'lofigirl', async message => {   
+    comando(client, 'lofigirl', message => {   
         checkandplay(lofigirlurl, message);  
     })
 
-    comando(client, 'catchthevibe', async message => {   
+    comando(client, 'catchthevibe', message => {   
         checkandplay(bestlofiever, message);
         message.channel.send("Amo essa! ❤");    
     })
 
-    comando(client, 'summervibes', async message => {   
+    comando(client, 'summervibes', message => {   
         checkandplay(summervibes, message);  
     })
 
-    comando(client, 'oldsongs', async message => {   
+    comando(client, 'oldsongs', message => {   
         checkandplay(oldsongs, message);  
     })   
 
-    comando(client, 'escape', async message => {   
+    comando(client, 'escape', message => {   
         checkandplay(escape, message);  
     })  
 
-    comando(client, 'pause', async message => {   
+    comando(client, 'pause', message => {   
         if (!dispatcher) {
             message.channel.send("Não estou tocando nenhuma música!");
             return; 
