@@ -8,6 +8,7 @@ const { prefix, chatname } = require('./global.json');
 const comando = require("./comandos.js");
 const client = new Discord.Client();
 const botConfig = require('./botconfig.js');
+const botconfig = require('./botconfig.js');
 
 /* <-- <-- <-- <-- <-- URLS YOUTUBE LOFIS --> --> --> --> -->  */
 const lofigirlurl = 'https://www.youtube.com/watch?v=5qap5aO4i9A';
@@ -24,7 +25,7 @@ client.on("ready", () => {
     console.log(`Bot iniciado, com ${client.users.size} usuários, em ${client.channels.size} canais, em ${client.guilds.size} servidores.`);   
     client.user.setActivity(`Catching a Vibe 🎵`);     
     let dispatcher;
-    let queue;
+    let queue = [];
 
     function checkandplay(m, message){
         const { voice } = message.member;
@@ -40,26 +41,31 @@ client.on("ready", () => {
         }   
         
         if ((botConfig.fila) && (playing)) { 
-            queue = queue.push(m);
-            console.log(queue);
+            queue.push(m);
+            message.channel.send(`Adicionado: ${m.title} à fila de reprodução.`);
+
         } else {
-            voice.channel.join().then((connection) => {
-                message.channel.send(`Tocando: ${musica.title}`);
-                play(m.url, connection); 
+            voice.channel.join().then((connection) => {            
+                play(m, connection, message); 
             });           
         }
     }
 
-    function play(url, connection) {
-        message.channel.send(`Tocando: ${musica.title}`);
-        const stream = ytdl(url, { filter: "audioonly" });
+    function play(m, connection, message) {
+        const stream = ytdl(m.url, { filter: "audioonly" });
         dispatcher = connection.play(stream, { volume: 1, seek: 0 });
         playing = true;
+        message.channel.send(`Tocando: ${m.title}`);
 
         dispatcher.on('finish', () => {
             console.log('Terminou de Tocar!');
             dispatcher = '';
             playing = false;
+
+            if ((queue.length > 0) && botconfig.fila) {
+                play(queue[0].url, connection);
+                queue.shift()
+            }
           });
   
       } 
@@ -75,6 +81,8 @@ client.on("ready", () => {
         • ${prefix}linkyt <link do youtube> (Toca qualquer link do YouTube)
         • ${prefix}pause (Pausa a música que está tocando)
         • ${prefix}resume (Continua a música de onde parou)
+        • ${prefix}fila (Mostra as músicas que estão na fila de reprodução)
+        • ${prefix}next (Passa para a próxima música da fila de reprodução)
 
         Lofies:
         • ${prefix}lofigirl (Toca a Rádio da lofigirl) LIVE 📢
@@ -85,7 +93,7 @@ client.on("ready", () => {
 
         Config:
         • ${prefix}configs (Mostra todas as configurações atuais)
-        • ${prefix}fila <true,false> (Habilita ou desabilita fila de reprodução)
+        • ${prefix}setfila <true,false> (Habilita ou desabilita fila de reprodução)
         `
         );
     })
@@ -149,7 +157,7 @@ client.on("ready", () => {
     })   
 
 
-    comando(client, 'fila', message => {   
+    comando(client, 'setfila', message => {   
         let args = message.content.split(" ");
         //args[0] -> "!fila"
         //args[1] -> bool
@@ -165,6 +173,44 @@ client.on("ready", () => {
         }
         
     })  
+
+    comando(client, 'fila', message => {   
+        if (botconfig.fila) {
+            if (queue.length > 0){
+                let lista = "";
+                for (let i = 0; i < queue.length; i++) {
+                    lista =  lista + (i+1) + ': ' + queue[i].title + "\n";
+                    
+                }
+                message.channel.send("Lista de reprodução \n" + lista);
+            } else {
+                message.channel.send("A fila de reprodução está Vazia!");
+            }
+
+        } else {
+            message.channel.send("A fila de reprodução está Desabilitada!");    
+        }
+        
+    })     
+
+    comando(client, 'next', message => {   
+        if (botconfig.fila) {
+            if (queue.length > 0){
+                const { voice } = message.member;
+                voice.channel.join().then((connection) => {
+                    play(queue[0], connection, message);
+                    queue.shift();    
+                }); 
+               
+            } else {
+                message.channel.send("A fila de reprodução está Vazia!");
+            }
+
+        } else {
+            message.channel.send("A fila de reprodução está Desabilitada!");    
+        }
+        
+    })     
 
     comando(client, 'config', message => {   
         message.channel.send(`
