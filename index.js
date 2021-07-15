@@ -3,11 +3,11 @@ require('events').EventEmitter.defaultMaxListeners = 15;
 const ytsr = require("ytsr");
 const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
-const config = require('./config.json');
-const { prefix, chatname } = require('./config.json');
+const global = require('./global.json');
+const { prefix, chatname } = require('./global.json');
 const comando = require("./comandos.js");
 const client = new Discord.Client();
-
+const botConfig = require('./botconfig.js');
 
 /* <-- <-- <-- <-- <-- URLS YOUTUBE LOFIS --> --> --> --> -->  */
 const lofigirlurl = 'https://www.youtube.com/watch?v=5qap5aO4i9A';
@@ -17,13 +17,11 @@ const oldsongs = 'https://www.youtube.com/watch?v=BrnDlRmW5hs';
 const escape = 'https://www.youtube.com/watch?v=qt_urUz42vI';
 /////////////////////////////////////////////////////////////////////
 
-let fila
-
 client.on("ready", () => {
     console.log(`Bot iniciado, com ${client.users.size} usuários, em ${client.channels.size} canais, em ${client.guilds.size} servidores.`);   
     client.user.setActivity(`Catching a Vibe 🎵`);     
     let dispatcher;
-
+    let queue;
 
     function checkandplay(url, message){
         const { voice } = message.member;
@@ -74,6 +72,10 @@ client.on("ready", () => {
         • ${prefix}summervibes (Toca o lofi Summer Vibes)
         • ${prefix}oldsongs (Toca músicas antigas, porém lofi)
         • ${prefix}escape (Toca música ambiente para sair da realidade) LIVE 📢
+
+        Config:
+        • ${prefix}configs (Mostra todas as configurações atuais)
+        • ${prefix}fila <true,false> (Habilita ou desabilita fila de reprodução)
         `
         );
     })
@@ -88,12 +90,14 @@ client.on("ready", () => {
         message.channel.send(`Pesquisando por: ${search}`);
         const result = await ytsr(search, { limit: "1" });
         const musica = result.items[0]; 
+
+        if (fila) {
+            
+        }
         message.channel.send(`Tocando: ${musica.title}`);
-        checkandplay(musica.url, message);
-        
+        checkandplay(musica.url, message);    
     })
     
-
     comando(client, 'linkyt', message => {   
         let args = message.content.split(" ");
         //args[0] -> "!play"
@@ -130,13 +134,37 @@ client.on("ready", () => {
         dispatcher.pause(); 
     })   
 
-    comando(client, 'resume', async message => {  
+    comando(client, 'resume', message => {  
         if (!dispatcher) {
             message.channel.send("Não estou tocando nenhuma música!");
             return; 
         } 
         dispatcher.resume(); 
     })   
+
+
+    comando(client, 'fila', message => {   
+        let args = message.content.split(" ");
+        //args[0] -> "!fila"
+        //args[1] -> bool
+
+        let setFila = args[1] == "true";
+        botConfig.fila = setFila;
+
+        if (setFila) {
+            message.channel.send("A fila de reprodução foi Habilitada!"); 
+        } else {
+            message.channel.send("A fila de reprodução foi Desabilitada!"); 
+        }
+        
+    })  
+
+    comando(client, 'config', message => {   
+        message.channel.send(`
+        Configurações Atuais:
+        • fila: ${botConfig.fila}
+        `);   
+    })     
 
 });
 client.on("guildCreate", guild => {
@@ -152,4 +180,4 @@ client.on("guildDelete", guild => {
     console.log(`O Bot foi removido do servidor: ${guild.name} (id: ${guild.id})`)
 }); 
 
-client.login(config.token);
+client.login(global.token);
