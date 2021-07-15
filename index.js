@@ -17,16 +17,19 @@ const oldsongs = 'https://www.youtube.com/watch?v=BrnDlRmW5hs';
 const escape = 'https://www.youtube.com/watch?v=qt_urUz42vI';
 /////////////////////////////////////////////////////////////////////
 
+let queue = [];
+let playing = false; 
+
 client.on("ready", () => {
     console.log(`Bot iniciado, com ${client.users.size} usuários, em ${client.channels.size} canais, em ${client.guilds.size} servidores.`);   
     client.user.setActivity(`Catching a Vibe 🎵`);     
     let dispatcher;
     let queue;
 
-    function checkandplay(url, message){
+    function checkandplay(m, message){
         const { voice } = message.member;
 
-        if (!url){
+        if (!m.url){
             message.channel.send("Me diga um link válido!");
             return;
         }
@@ -36,20 +39,27 @@ client.on("ready", () => {
             return;
         }   
         
-        voice.channel.join().then((connection) => {
-            play(url, connection); 
-        });
-  
+        if ((botConfig.fila) && (playing)) { 
+            queue = queue.push(m);
+            console.log(queue);
+        } else {
+            voice.channel.join().then((connection) => {
+                message.channel.send(`Tocando: ${musica.title}`);
+                play(m.url, connection); 
+            });           
+        }
     }
 
     function play(url, connection) {
-        playing = true;
+        message.channel.send(`Tocando: ${musica.title}`);
         const stream = ytdl(url, { filter: "audioonly" });
         dispatcher = connection.play(stream, { volume: 1, seek: 0 });
+        playing = true;
 
         dispatcher.on('finish', () => {
             console.log('Terminou de Tocar!');
             dispatcher = '';
+            playing = false;
           });
   
       } 
@@ -91,11 +101,7 @@ client.on("ready", () => {
         const result = await ytsr(search, { limit: "1" });
         const musica = result.items[0]; 
 
-        if (fila) {
-            
-        }
-        message.channel.send(`Tocando: ${musica.title}`);
-        checkandplay(musica.url, message);    
+        checkandplay(musica, message);      
     })
     
     comando(client, 'linkyt', message => {   
@@ -149,6 +155,7 @@ client.on("ready", () => {
         //args[1] -> bool
 
         let setFila = args[1] == "true";
+
         botConfig.fila = setFila;
 
         if (setFila) {
