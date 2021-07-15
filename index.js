@@ -7,6 +7,12 @@ const comando = require("./comandos.js");
 const client = new Discord.Client();
 const path = require("path");
 
+function play(url, connection) {
+    playing = true;
+    const stream = ytdl(url, { filter: "audioonly" });
+    connection.play(stream, { volume: 1, seek: 0 });
+  }
+
 client.on("ready", () => {
     console.log(`Bot iniciado, com ${client.users.size} usuários, em ${client.channels.size} canais, em ${client.guilds.size} servidores.`);
     
@@ -44,15 +50,11 @@ client.on("ready", () => {
             message.channel.send("Você precisa estar em um chat de voz!");
             return;
         }       
+        args[1]
+        voice.channel.join().then((connection) => {
+            play(args[1], connection);   
+        });
 
-        voice.channel.join();
-
-        try {          
-            const stream = ytdl(args[1], { filter: "audioonly" });
-            connection.play(stream, { volume: 1, seek: 0 });
-        } catch (error) {
-            console.log(error);  
-        }
     })
 
 
