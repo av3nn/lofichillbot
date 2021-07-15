@@ -3,12 +3,10 @@ require('events').EventEmitter.defaultMaxListeners = 15;
 const ytsr = require("ytsr");
 const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
-const global = require('./global.json');
-const { prefix, chatname } = require('./global.json');
+const botConfig = require('./botconfig.js');
 const comando = require("./comandos.js");
 const client = new Discord.Client();
-const botConfig = require('./botconfig.js');
-const botconfig = require('./botconfig.js');
+  
 
 /* <-- <-- <-- <-- <-- URLS YOUTUBE LOFIS --> --> --> --> -->  */
 const lofigirlurl = 'https://www.youtube.com/watch?v=5qap5aO4i9A';
@@ -18,7 +16,6 @@ const oldsongs = 'https://www.youtube.com/watch?v=BrnDlRmW5hs';
 const escape = 'https://www.youtube.com/watch?v=qt_urUz42vI';
 /////////////////////////////////////////////////////////////////////
 
-let queue = [];
 let playing = false; 
 
 client.on("ready", () => {
@@ -62,7 +59,7 @@ client.on("ready", () => {
             dispatcher = '';
             playing = false;
 
-            if ((queue.length > 0) && botconfig.fila) {
+            if ((queue.length > 0) && botConfig.fila) {
                 play(queue[0].url, connection);
                 queue.shift()
             }
@@ -75,25 +72,25 @@ client.on("ready", () => {
         (`Comandos disponíveis:
 
         Comandos Gerais:
-        • ${prefix}comandos (Mostra todos os comandos disponíveis)
-        • ${prefix}ping (Mostra o ping entre você e o bot)
-        • ${prefix}play <nome da música> (Toca qualquer música do YouTube)
-        • ${prefix}linkyt <link do youtube> (Toca qualquer link do YouTube)
-        • ${prefix}pause (Pausa a música que está tocando)
-        • ${prefix}resume (Continua a música de onde parou)
-        • ${prefix}fila (Mostra as músicas que estão na fila de reprodução)
-        • ${prefix}next (Passa para a próxima música da fila de reprodução)
+        • ${botConfig.prefix}comandos (Mostra todos os comandos disponíveis)
+        • ${botConfig.prefix}ping (Mostra o ping entre você e o bot)
+        • ${botConfig.prefix}play <nome da música> (Toca qualquer música do YouTube)
+        • ${botConfig.prefix}linkyt <link do youtube> (Toca qualquer link do YouTube)
+        • ${botConfig.prefix}pause (Pausa a música que está tocando)
+        • ${botConfig.prefix}resume (Continua a música de onde parou)
+        • ${botConfig.prefix}fila (Mostra as músicas que estão na fila de reprodução)
+        • ${botConfig.prefix}next (Passa para a próxima música da fila de reprodução)
 
         Lofies:
-        • ${prefix}lofigirl (Toca a Rádio da lofigirl) LIVE 📢
-        • ${prefix}catchthevibe (Toca o melhor lofi de todos ❤)
-        • ${prefix}summervibes (Toca o lofi Summer Vibes)
-        • ${prefix}oldsongs (Toca músicas antigas, porém lofi)
-        • ${prefix}escape (Toca música ambiente para sair da realidade) LIVE 📢
+        • ${botConfig.prefix}lofigirl (Toca a Rádio da lofigirl) LIVE 📢
+        • ${botConfig.prefix}catchthevibe (Toca o melhor lofi de todos ❤)
+        • ${botConfig.prefix}summervibes (Toca o lofi Summer Vibes)
+        • ${botConfig.prefix}oldsongs (Toca músicas antigas, porém lofi)
+        • ${botConfig.prefix}escape (Toca música ambiente para sair da realidade) LIVE 📢
 
         Config:
-        • ${prefix}configs (Mostra todas as configurações atuais)
-        • ${prefix}setfila <true,false> (Habilita ou desabilita fila de reprodução)
+        • ${botConfig.prefix}configs (Mostra todas as configurações atuais)
+        • ${botConfig.prefix}setfila <true,false> (Habilita ou desabilita fila de reprodução)
         `
         );
     })
@@ -175,7 +172,7 @@ client.on("ready", () => {
     })  
 
     comando(client, 'fila', message => {   
-        if (botconfig.fila) {
+        if (botConfig.fila) {
             if (queue.length > 0){
                 let lista = "";
                 for (let i = 0; i < queue.length; i++) {
@@ -194,7 +191,7 @@ client.on("ready", () => {
     })     
 
     comando(client, 'next', message => {   
-        if (botconfig.fila) {
+        if (botConfig.fila) {
             if (queue.length > 0){
                 const { voice } = message.member;
                 voice.channel.join().then((connection) => {
@@ -223,7 +220,7 @@ client.on("ready", () => {
 client.on("guildCreate", guild => {
     console.log(`O Bot entrou no servidor: ${guild.name} (id: ${guild.id}), com ${guild.memberCount} pessoas!`);
     
-    const textchat = guild.channels.create(chatname, {type: "text", topic: "Chat Dedicado ao Lofi Chill Bot! Utilize !comandos para obter ajuda."})
+    const textchat = guild.channels.create(botConfig.chatname, {type: "text", topic: "Chat Dedicado ao Lofi Chill Bot! Utilize !comandos para obter ajuda."})
     .then(console.log)
     .catch(console.error);   
 
