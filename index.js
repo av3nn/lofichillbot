@@ -61,7 +61,7 @@ client.on("ready", () => {
             playing = false;
 
             if ((queue.length > 0) && botConfig.fila) {
-                play(queue[0].url, connection);
+                play(queue[0], connection, message);
                 queue.shift()
             }
           });
@@ -113,9 +113,13 @@ client.on("ready", () => {
     
     comando(client, 'linkyt', message => {   
         let args = message.content.split(" ");
+        m = {
+            title: "Link",
+            url: args[1]
+        }      
         //args[0] -> "!play"
         //args[1] -> <url>       
-        checkandplay(args[1], message);
+        checkandplay(m, message);
     })
 
     comando(client, 'lofigirl', message => {   
