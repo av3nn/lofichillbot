@@ -6,6 +6,7 @@ const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
 const botConfig = require('./botconfig.js');
 const comando = require("./comandos.js");
+const botconfig = require('./botconfig.js');
 const client = new Discord.Client();
   
 
@@ -24,6 +25,8 @@ client.on("ready", () => {
     client.user.setActivity(`Catching a Vibe 🎵`);     
     let dispatcher;
     let queue = [];
+    let _ref = []; 
+
 
     function checkandplay(m, message){
         const { voice } = message.member;
@@ -63,10 +66,37 @@ client.on("ready", () => {
             if ((queue.length > 0) && botConfig.fila) {
                 play(queue[0], connection, message);
                 queue.shift()
+            } else if (botconfig.autoplay) {
+                autoPlay(m, message);
             }
           });
-  
       } 
+
+    async function autoPlay (m, message) {
+        console.log("Autoplay on.");
+        message.channel.send("Procurando música relacionada... autoplay: on");  
+        let result;
+        
+
+        if (_ref.length > 0) {        
+            result = await ytsr(_ref[0].q , { limit: "1" });  
+        } else {
+            result = await ytsr(m.title, { limit: "1" });  
+            if (!result.refinements[0]) {
+                message.channel.send("Não foi encontrado nenhuma música relacionada. Pausando a reprodução automática...");  
+                return;
+            }  
+
+            result.refinements.forEach((valor, index) => {
+                _ref.push(result.refinements[index]);
+            });
+     
+            result = await ytsr(_ref[0], { limit: "1" });  
+        }
+        const musica = result.items[0]; 
+        _ref.shift();      
+        checkandplay(musica, message); 
+      }
 
     comando(client, 'comandos',  message => {   
         message.channel.send
@@ -81,7 +111,7 @@ client.on("ready", () => {
         • ${botConfig.prefix}resume (Continua a música de onde parou)
         • ${botConfig.prefix}stop (Para completamente a reprodução da música)
         • ${botConfig.prefix}fila (Mostra as músicas que estão na fila de reprodução)
-        • ${botConfig.prefix}next (Passa para a próxima música da fila de reprodução)
+        • ${botConfig.prefix}next (Passa para a próxima música da fila de reprodução ou a)
         • ${botConfig.prefix}remover (Remove uma música da fila de reprodução)
 
         Lofies:
@@ -94,6 +124,7 @@ client.on("ready", () => {
         Config:
         • ${botConfig.prefix}configs (Mostra todas as configurações atuais)
         • ${botConfig.prefix}setfila <true,false> (Habilita ou desabilita fila de reprodução)
+        • ${botConfig.prefix}setautoplay <true,false> (Habilita ou desabilita reprodução automática de músicas relacionadas)
         `
         );
     })
@@ -108,6 +139,10 @@ client.on("ready", () => {
         message.channel.send(`Pesquisando por: ${search}`);
         const result = await ytsr(search, { limit: "1" });
         const musica = result.items[0]; 
+        _ref = [];
+        result.refinements.forEach((valor, index) => {
+            _ref.push(result.refinements[index]);
+        });
 
         checkandplay(musica, message);      
     })
@@ -202,8 +237,6 @@ client.on("ready", () => {
             message.channel.send("Escolha um valor de música válido!");
         }
 
-
-
     })   
 
     comando(client, 'stop', message => {  
@@ -232,6 +265,23 @@ client.on("ready", () => {
         
     })  
 
+    comando(client, 'setautoplay', message => {   
+        let args = message.content.split(" ");
+        //args[0] -> "!fila"
+        //args[1] -> bool
+
+        let setautoplay = args[1] == "true";
+
+        botConfig.autoplay = setautoplay;
+
+        if (setautoplay) {
+            message.channel.send("A reprodução automática foi Habilitada!"); 
+        } else {
+            message.channel.send("A reprodução automática foi Desabilitada!"); 
+        }
+        
+    })  
+
     comando(client, 'fila', message => {   
         if (botConfig.fila) {
             if (queue.length > 0){
@@ -252,28 +302,33 @@ client.on("ready", () => {
     })     
 
     comando(client, 'next', message => {   
-        if (botConfig.fila) {
-            if (queue.length > 0){
-                const { voice } = message.member;
-                voice.channel.join().then((connection) => {
-                    play(queue[0], connection, message);
-                    queue.shift();    
-                }); 
-               
-            } else {
-                message.channel.send("A fila de reprodução está Vazia!");
-            }
+        const { voice } = message.member;
 
+        if ((botConfig.fila) && (queue.length > 0)) {     
+            voice.channel.join().then((connection) => {
+                play(queue[0], connection, message);
+                queue.shift();    
+            }); 
+            
+        } else if (_ref.length > 0){
+            voice.channel.join().then(async (connection) => {
+                const result = await ytsr(_ref[0].q , { limit: "1" });  
+                const musica = result.items[0];              
+                play(musica, connection, message);
+                _ref.shift();
+            });
+               
         } else {
-            message.channel.send("A fila de reprodução está Desabilitada!");    
+            message.channel.send("A fila de reprodução está Vazia ou Desabilitada!"); 
         }
-        
+
     })     
 
-    comando(client, 'config', message => {   
+    comando(client, 'configs', message => {   
         message.channel.send(`
         Configurações Atuais:
         • fila: ${botConfig.fila}
+        • autoplay: ${botConfig.autoplay}
         `);   
     })     
 
