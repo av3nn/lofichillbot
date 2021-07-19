@@ -82,6 +82,7 @@ client.on("ready", () => {
         • ${botConfig.prefix}stop (Para completamente a reprodução da música)
         • ${botConfig.prefix}fila (Mostra as músicas que estão na fila de reprodução)
         • ${botConfig.prefix}next (Passa para a próxima música da fila de reprodução)
+        • ${botConfig.prefix}remover (Remove uma música da fila de reprodução)
 
         Lofies:
         • ${botConfig.prefix}lofigirl (Toca a Rádio da lofigirl) LIVE 📢
@@ -177,6 +178,32 @@ client.on("ready", () => {
             return; 
         } 
         dispatcher.resume(); 
+    })   
+
+    comando(client, 'remover', message => {  
+        //  !remover 2
+        let args = message.content.split(" ");
+        n = args[1] - 1;
+        if ((n >= 0) && (n < queue.length)){
+            musica_removida = queue[n];
+            queue[n] = '';
+
+            let filatemp = []
+            for (let i = 0; i < queue.length; i++) {
+                if (!queue[i]) {
+                    continue;
+                }
+                filatemp.push(queue[i]);
+                   
+            }
+            queue = filatemp;
+            message.channel.send(`A música ${musica_removida.title} foi removida!`);
+        } else {
+            message.channel.send("Escolha um valor de música válido!");
+        }
+
+
+
     })   
 
     comando(client, 'stop', message => {  
