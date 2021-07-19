@@ -6,7 +6,6 @@ const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
 const botConfig = require('./botconfig.js');
 const comando = require("./comandos.js");
-const botconfig = require('./botconfig.js');
 const client = new Discord.Client();
   
 
@@ -19,14 +18,13 @@ const escape = 'https://www.youtube.com/watch?v=qt_urUz42vI';
 /////////////////////////////////////////////////////////////////////
 
 let playing = false; 
+let dispatcher;
+let queue = [];
+let _ref = []; 
 
 client.on("ready", () => {
     console.log(`Bot iniciado, com ${client.users.size} usuários, em ${client.channels.size} canais, em ${client.guilds.size} servidores.`);   
     client.user.setActivity(`Catching a Vibe 🎵`);     
-    let dispatcher;
-    let queue = [];
-    let _ref = []; 
-
 
     function checkandplay(m, message){
         const { voice } = message.member;
@@ -66,7 +64,7 @@ client.on("ready", () => {
             if ((queue.length > 0) && botConfig.fila) {
                 play(queue[0], connection, message);
                 queue.shift()
-            } else if (botconfig.autoplay) {
+            } else if (botConfig.autoplay) {
                 autoPlay(m, message);
             }
           });
@@ -245,6 +243,7 @@ client.on("ready", () => {
             return; 
         } 
         dispatcher.destroy(); 
+        playing = false;
     })   
 
 
