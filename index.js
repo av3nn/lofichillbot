@@ -41,7 +41,7 @@ client.on("ready", () => {
         
         if ((botConfig.fila) && (playing)) { 
             queue.push(m);
-            message.channel.send(`Adicionado: ${m.title} à fila de reprodução.`);
+            message.channel.send(`> Adicionado: ${m.title} à fila de reprodução.`);
 
         } else {
             voice.channel.join().then((connection) => {            
@@ -54,7 +54,7 @@ client.on("ready", () => {
         const stream = ytdl(m.url, { filter: "audioonly" });
         dispatcher = connection.play(stream, { volume: 1, seek: 0 });
         playing = true;
-        message.channel.send(`Tocando: ${m.title}`);
+        message.channel.send(`> Tocando: ${m.title}`);
 
         dispatcher.on('finish', () => {
             console.log('Terminou de Tocar!');
@@ -72,7 +72,7 @@ client.on("ready", () => {
 
     async function autoPlay (m, message) {
         console.log("Autoplay on.");
-        message.channel.send("Procurando música relacionada... autoplay: on");  
+        message.channel.send("> Procurando música relacionada... autoplay: on");  
         let result;
         
 
@@ -81,7 +81,7 @@ client.on("ready", () => {
         } else {
             result = await ytsr(m.title, { limit: "1" });  
             if (!result.refinements[0]) {
-                message.channel.send("Não foi encontrado nenhuma música relacionada. Pausando a reprodução automática...");  
+                message.channel.send("> Não foi encontrado nenhuma música relacionada. Pausando a reprodução automática...");  
                 return;
             }  
 
@@ -94,7 +94,7 @@ client.on("ready", () => {
         const musica = result.items[0]; 
         _ref.shift();      
         checkandplay(musica, message); 
-      }
+    }
 
     comando(client, 'comandos',  message => {   
         message.channel.send
@@ -129,14 +129,15 @@ client.on("ready", () => {
 
     comando(client, 'ping', async message => {   
         const m = await message.channel.send("Ping?");
-        m.edit(`Pong! A Latência é de: ${m.createdTimestamp - message.createdTimestamp}ms.`);
+        m.edit(`> Pong! A Latência é de: ${m.createdTimestamp - message.createdTimestamp}ms.`);
     })
 
     comando(client, 'play', async message => {   
         const search = message.content.replace(/!play/gi, '').trim();
-        message.channel.send(`Pesquisando por: ${search}`);
+        message.channel.send(`> Pesquisando por: ${search}`);
         const result = await ytsr(search, { limit: "1" });
         const musica = result.items[0]; 
+
         _ref = [];
         result.refinements.forEach((valor, index) => {
             _ref.push(result.refinements[index]);
