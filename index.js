@@ -41,7 +41,7 @@ client.on("ready", () => {
         
         if ((botConfig.fila) && (playing)) { 
             queue.push(m);
-            message.channel.send(`> Adicionado: ${m.title} à fila de reprodução.`);
+            message.channel.send(`> Adicionado: **${m.title}** à fila de reprodução.`);
 
         } else {
             voice.channel.join().then((connection) => {            
@@ -54,7 +54,7 @@ client.on("ready", () => {
         const stream = ytdl(m.url, { filter: "audioonly" });
         dispatcher = connection.play(stream, { volume: 1, seek: 0 });
         playing = true;
-        message.channel.send(`> Tocando: ${m.title}`);
+        message.channel.send(`> Tocando: **${m.title}** \n > Duração: **${m.duration}**`);
 
         dispatcher.on('finish', () => {
             console.log('Terminou de Tocar!');
@@ -72,7 +72,7 @@ client.on("ready", () => {
 
     async function autoPlay (m, message) {
         console.log("Autoplay on.");
-        message.channel.send("> Procurando música relacionada... autoplay: on");  
+        message.channel.send("> Procurando música relacionada... Autoplay: **On**");  
         let result;
         
 
@@ -129,7 +129,7 @@ client.on("ready", () => {
 
     comando(client, 'ping', async message => {   
         const m = await message.channel.send("Ping?");
-        m.edit(`> Pong! A Latência é de: ${m.createdTimestamp - message.createdTimestamp}ms.`);
+        m.edit(`> Pong! A Latência é de: **${m.createdTimestamp - message.createdTimestamp}ms.**`);
     })
 
     comando(client, 'play', async message => {   
@@ -171,7 +171,7 @@ client.on("ready", () => {
             url: bestlofiever
         }
         checkandplay(m, message);
-        message.channel.send("Amo essa! ❤");    
+        message.channel.send("**Amo essa! ❤**");    
     })
 
     comando(client, 'summervibes', message => {  
@@ -231,7 +231,7 @@ client.on("ready", () => {
                    
             }
             queue = filatemp;
-            message.channel.send(`A música ${musica_removida.title} foi removida!`);
+            message.channel.send(`A música **${musica_removida.title}** foi removida!`);
         } else {
             message.channel.send("Escolha um valor de música válido!");
         }
@@ -258,9 +258,9 @@ client.on("ready", () => {
         botConfig.fila = setFila;
 
         if (setFila) {
-            message.channel.send("A fila de reprodução foi Habilitada!"); 
+            message.channel.send("A fila de reprodução foi **Habilitada!**"); 
         } else {
-            message.channel.send("A fila de reprodução foi Desabilitada!"); 
+            message.channel.send("A fila de reprodução foi **Desabilitada!**"); 
         }
         
     })  
@@ -275,9 +275,9 @@ client.on("ready", () => {
         botConfig.autoplay = setautoplay;
 
         if (setautoplay) {
-            message.channel.send("A reprodução automática foi Habilitada!"); 
+            message.channel.send("A reprodução automática foi **Habilitada!**"); 
         } else {
-            message.channel.send("A reprodução automática foi Desabilitada!"); 
+            message.channel.send("A reprodução automática foi **Desabilitada!**"); 
         }
         
     })  
@@ -287,10 +287,10 @@ client.on("ready", () => {
             if (queue.length > 0){
                 let lista = "";
                 for (let i = 0; i < queue.length; i++) {
-                    lista =  lista + (i+1) + ': ' + queue[i].title + "\n";
+                    lista =  lista + '> ' +(i+1) + ': ' + queue[i].title + "\n";
                     
                 }
-                message.channel.send("Lista de reprodução \n" + lista);
+                message.channel.send("> **Lista de reprodução ⤵** \n" + lista);
             } else {
                 message.channel.send("A fila de reprodução está Vazia!");
             }
