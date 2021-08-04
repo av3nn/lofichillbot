@@ -168,7 +168,8 @@ client.on("ready", () => {
     comando(client, 'catchthevibe', message => {   
         m = {
             title: "Catching a Vibe / lofi hiphop mix",
-            url: bestlofiever
+            url: bestlofiever,
+            duration: "59:55"
         }
         checkandplay(m, message);
         message.channel.send("**Amo essa! ❤**");    
