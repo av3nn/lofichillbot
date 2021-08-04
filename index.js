@@ -154,11 +154,13 @@ client.on("ready", () => {
         message.channel.send(`> Pesquisando por: ${search}`);
         const result = await ytsr(search, { limit: "1" });
         const musica = result.items[0]; 
+        musica['pesquisa'] = search;
 
         _ref = [];
         result.refinements.forEach((valor, index) => {
             _ref.push(result.refinements[index]);
         });
+
 
         if (botConfig.lyrics){
             let lyrics = await lyricsFinder('', search) || "Letra não encontrada!";            
@@ -182,6 +184,7 @@ client.on("ready", () => {
     comando(client, 'lofigirl', message => {   
         m = {
             title: "lofi hip hop radio - beats to relax/study to",
+            duration: "Ao Vivo 📢",
             url: lofigirlurl
         }
         checkandplay(m, message);  
@@ -285,7 +288,7 @@ client.on("ready", () => {
         } else {
             message.channel.send("A fila de reprodução foi **Desabilitada!**"); 
         }
-        
+         
     })  
 
     comando(client, 'setlyrics', message => {   
@@ -345,7 +348,11 @@ client.on("ready", () => {
         const { voice } = message.member;
 
         if ((botConfig.fila) && (queue.length > 0)) {     
-            voice.channel.join().then((connection) => {
+            voice.channel.join().then(async (connection) => {
+                if (botConfig.lyrics){
+                    let lyrics = await lyricsFinder('', queue[0].pesquisa) || "Letra não encontrada!";            
+                    f_lyrics = lyrics.split("\n");
+                }
                 play(queue[0], connection, message);
                 queue.shift();    
             }); 
@@ -353,6 +360,10 @@ client.on("ready", () => {
         } else if (_ref.length > 0){
             voice.channel.join().then(async (connection) => {
                 const result = await ytsr(_ref[0].q , { limit: "1" });  
+                if (botConfig.lyrics){
+                    let lyrics = await lyricsFinder('', _ref[0].q) || "Letra não encontrada!";            
+                    f_lyrics = lyrics.split("\n");
+                }                
                 const musica = result.items[0];              
                 play(musica, connection, message);
                 _ref.shift();
