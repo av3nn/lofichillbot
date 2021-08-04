@@ -74,12 +74,17 @@ client.on("ready", () => {
             ;
         }
                    
-        dispatcher.on('finish', () => {
+        dispatcher.on('finish', async () => {
             console.log('Terminou de Tocar!');
             dispatcher = '';
             playing = false;
 
             if ((queue.length > 0) && botConfig.fila) {
+                if (botConfig.lyrics){
+                    let lyrics = await lyricsFinder('', queue[0].pesquisa) || "Letra não encontrada!";            
+                    f_lyrics = lyrics.split("\n");
+                }   
+
                 play(queue[0], connection, message);
                 queue.shift()
             } else if (botConfig.autoplay) {
