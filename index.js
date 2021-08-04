@@ -1,6 +1,7 @@
 require('events').EventEmitter.defaultMaxListeners = 20;
 require('dotenv').config();
 
+const lyricsFinder = require("lyrics-finder");
 const ytsr = require("ytsr");
 const ytdl = require("ytdl-core");
 const Discord = require("discord.js");
@@ -21,6 +22,7 @@ let playing = false;
 let dispatcher;
 let queue = [];
 let _ref = []; 
+let f_lyrics;
 
 client.on("ready", () => {
     console.log(`Bot iniciado, com ${client.users.size} usuários, em ${client.channels.size} canais, em ${client.guilds.size} servidores.`);   
@@ -50,12 +52,22 @@ client.on("ready", () => {
         }
     }
 
-    function play(m, connection, message) {
+     function play(m, connection, message) {
         const stream = ytdl(m.url, { filter: "audioonly" });
         dispatcher = connection.play(stream, { volume: 1, seek: 0 });
         playing = true;
         message.channel.send(`> Tocando: **${m.title}** \n > Duração: **${m.duration}**`);
-
+        if (botConfig.lyrics) {      
+            
+            let lyrics_str = '';
+            f_lyrics.forEach((valor, index) => {
+                if ( (valor != '') && (valor != '\n')){
+                    lyrics_str = `${lyrics_str} > **${valor}**\n`;
+                }               
+            });
+            message.channel.send(`> Letra da Música: \n ${lyrics_str}`);
+        }
+                   
         dispatcher.on('finish', () => {
             console.log('Terminou de Tocar!');
             dispatcher = '';
@@ -88,8 +100,12 @@ client.on("ready", () => {
             result.refinements.forEach((valor, index) => {
                 _ref.push(result.refinements[index]);
             });
-     
             result = await ytsr(_ref[0], { limit: "1" });  
+
+            if (botConfig.lyrics){
+                let lyrics = await lyricsFinder('', _ref[0]) || "Letra não encontrada!";            
+                f_lyrics = lyrics.split("\n");
+            }            
         }
         const musica = result.items[0]; 
         _ref.shift();      
@@ -122,6 +138,7 @@ client.on("ready", () => {
         Config:
         • ${botConfig.prefix}configs (Mostra todas as configurações atuais)
         • ${botConfig.prefix}setfila <true,false> (Habilita ou desabilita fila de reprodução)
+        • ${botConfig.prefix}setlyrics <true,false> (Habilita ou desabilita fila de reprodução)
         • ${botConfig.prefix}setautoplay <true,false> (Habilita ou desabilita reprodução automática de músicas relacionadas)
         `
         );
@@ -142,6 +159,11 @@ client.on("ready", () => {
         result.refinements.forEach((valor, index) => {
             _ref.push(result.refinements[index]);
         });
+
+        if (botConfig.lyrics){
+            let lyrics = await lyricsFinder('', search) || "Letra não encontrada!";            
+            f_lyrics = lyrics.split("\n");
+        }
 
         checkandplay(musica, message);      
     })
@@ -266,6 +288,23 @@ client.on("ready", () => {
         
     })  
 
+    comando(client, 'setlyrics', message => {   
+        let args = message.content.split(" ");
+        //args[0] -> "!fila"
+        //args[1] -> bool
+
+        let setLyrics = args[1] == "true";
+
+        botConfig.lyrics = setLyrics;
+
+        if (setLyrics) {
+            message.channel.send("Exibição de letras foi **Habilitada!**"); 
+        } else {
+            message.channel.send("Exibição de letras foi **Desabilitada!**"); 
+        }
+        
+    })      
+
     comando(client, 'setautoplay', message => {   
         let args = message.content.split(" ");
         //args[0] -> "!fila"
@@ -329,6 +368,7 @@ client.on("ready", () => {
         message.channel.send(`
         Configurações Atuais:
         • fila: ${botConfig.fila}
+        • lyrics: ${botConfig.lyrics} 
         • autoplay: ${botConfig.autoplay}
         `);   
     })     
