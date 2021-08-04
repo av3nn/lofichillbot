@@ -60,12 +60,18 @@ client.on("ready", () => {
         if (botConfig.lyrics) {      
             
             let lyrics_str = '';
+            message.channel.send(`> Letra da Música: \n> ⤵\n`)
             f_lyrics.forEach((valor, index) => {
+                
                 if ( (valor != '') && (valor != '\n')){
                     lyrics_str = `${lyrics_str} > **${valor}**\n`;
-                }               
+                } else {
+                    lyrics_str = lyrics_str + '> 🎵 \n';
+                    message.channel.send(lyrics_str);
+                    lyrics_str = '';
+                }             
             });
-            message.channel.send(`> Letra da Música: \n ${lyrics_str}`);
+            ;
         }
                    
         dispatcher.on('finish', () => {
@@ -89,7 +95,13 @@ client.on("ready", () => {
         
 
         if (_ref.length > 0) {        
-            result = await ytsr(_ref[0].q , { limit: "1" });  
+            result = await ytsr(_ref[0].q , { limit: "1" }); 
+            
+            if (botConfig.lyrics){
+                let lyrics = await lyricsFinder('', _ref[0].q) || "Letra não encontrada!";            
+                f_lyrics = lyrics.split("\n");
+            }   
+
         } else {
             result = await ytsr(m.title, { limit: "1" });  
             if (!result.refinements[0]) {
@@ -101,12 +113,9 @@ client.on("ready", () => {
                 _ref.push(result.refinements[index]);
             });
             result = await ytsr(_ref[0], { limit: "1" });  
-
-            if (botConfig.lyrics){
-                let lyrics = await lyricsFinder('', _ref[0]) || "Letra não encontrada!";            
-                f_lyrics = lyrics.split("\n");
-            }            
+                  
         }
+
         const musica = result.items[0]; 
         _ref.shift();      
         checkandplay(musica, message); 
