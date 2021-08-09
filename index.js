@@ -56,22 +56,34 @@ client.on("ready", () => {
         const stream = ytdl(m.url, { filter: "audioonly" });
         dispatcher = connection.play(stream, { volume: 1, seek: 0 });
         playing = true;
-        message.channel.send(`> Tocando: **${m.title}** \n > Duração: **${m.duration}**`);
-        if (botConfig.lyrics) {      
-            
+        message.channel.send(`> 🎶🎶🎶🎶 🎶🎶🎶🎶 🎶🎶🎶🎶 \n> Tocando: **${m.title}** \n > Duração: **${m.duration}**`);
+       
+        if (botConfig.lyrics && f_lyrics.length > 0) {      
+              
             let lyrics_str = '';
             message.channel.send(`> Letra da Música: \n> ⤵\n`)
             f_lyrics.forEach((valor, index) => {
                 
-                if ( (valor != '') && (valor != '\n')){
+                if ( (valor != '') && (valor != '\n')){                   
                     lyrics_str = `${lyrics_str} > **${valor}**\n`;
                 } else {
                     lyrics_str = lyrics_str + '> 🎵 \n';
+                } 
+
+                // Regra do discord que mensagens não podem ser mais compridas que 2000 caracteres
+                if (lyrics_str.length > 1950) {
                     message.channel.send(lyrics_str);
                     lyrics_str = '';
-                }             
+                }
+                
             });
-            ;
+
+            // Manda o que sobrou da letra, que não caiu no if porque o length era pequeno
+            if (lyrics_str != ''){
+                message.channel.send(lyrics_str);
+                lyrics_str = '';           
+            }
+            
         }
                    
         dispatcher.on('finish', async () => {
@@ -139,8 +151,8 @@ client.on("ready", () => {
         • ${botConfig.prefix}resume (Continua a música de onde parou)
         • ${botConfig.prefix}stop (Para completamente a reprodução da música)
         • ${botConfig.prefix}fila (Mostra as músicas que estão na fila de reprodução)
-        • ${botConfig.prefix}next (Passa para a próxima música da fila de reprodução ou a)
-        • ${botConfig.prefix}remover (Remove uma música da fila de reprodução)
+        • ${botConfig.prefix}next (Passa para a próxima música da fila de reprodução ou autoplay)
+        • ${botConfig.prefix}remover <número> (Remove uma música da fila de reprodução)
 
         Lofies:
         • ${botConfig.prefix}lofigirl (Toca a Rádio da lofigirl) LIVE 📢
@@ -165,7 +177,7 @@ client.on("ready", () => {
 
     comando(client, 'play', async message => {   
         const search = message.content.replace(/!play/gi, '').trim();
-        message.channel.send(`> Pesquisando por: ${search}`);
+        message.channel.send(`> 🔎 Pesquisando por: ${search}`);
         const result = await ytsr(search, { limit: "1" });
         const musica = result.items[0]; 
         musica['pesquisa'] = search;
@@ -392,9 +404,9 @@ client.on("ready", () => {
     comando(client, 'configs', message => {   
         message.channel.send(`
         Configurações Atuais:
-        • fila: ${botConfig.fila}
-        • lyrics: ${botConfig.lyrics} 
-        • autoplay: ${botConfig.autoplay}
+        • fila: **${botConfig.fila}**
+        • lyrics: **${botConfig.lyrics}** 
+        • autoplay: **${botConfig.autoplay}**
         `);   
     })     
 
